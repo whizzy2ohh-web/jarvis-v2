@@ -1,7 +1,7 @@
 // JARVIS AI Trading Terminal - Main JavaScript
 
 // Configuration
-const API_URL = 'jarvis-v2-production-d9b1.up.railway.app'; // Will be updated after deployment
+const API_URL = 'https://your-backend-url.railway.app/api'; // Will be updated after deployment
 const UPDATE_INTERVAL = 10000; // Update every 10 seconds
 
 // State
@@ -11,14 +11,7 @@ let signalCheckInterval = null;
 
 // Available assets
 const assets = [
-    { symbol: 'BTC/USDT', name: 'Bitcoin', ticker: 'BTC', favorite: true },
-    { symbol: 'ETH/USDT', name: 'Ethereum', ticker: 'ETH', favorite: true },
-    { symbol: 'SOL/USDT', name: 'Solana', ticker: 'SOL', favorite: true },
-    { symbol: 'BNB/USDT', name: 'Binance Coin', ticker: 'BNB', favorite: true },
-    { symbol: 'XRP/USDT', name: 'Ripple', ticker: 'XRP', favorite: false },
-    { symbol: 'ADA/USDT', name: 'Cardano', ticker: 'ADA', favorite: false },
-    { symbol: 'DOGE/USDT', name: 'Dogecoin', ticker: 'DOGE', favorite: false },
-    { symbol: 'DOT/USDT', name: 'Polkadot', ticker: 'DOT', favorite: false }
+    { symbol: 'BTC/USDT', name: 'Bitcoin', ticker: 'BTC', favorite: true }
 ];
 
 // Initialize
@@ -68,6 +61,9 @@ function renderAssets() {
         
         grid.appendChild(card);
     });
+    
+    // Update count
+    document.querySelector('.asset-count').textContent = `${assets.length} pair${assets.length !== 1 ? 's' : ''} available`;
 }
 
 // Select asset
@@ -104,6 +100,8 @@ async function fetchLatestSignal() {
     try {
         // Show loading state
         const signalDisplay = document.getElementById('signal-display');
+        const signalDetails = document.getElementById('signal-details');
+        
         signalDisplay.innerHTML = `
             <div class="signal-icon">⏳</div>
             <div class="signal-message">Checking for signals...</div>
@@ -121,15 +119,20 @@ async function fetchLatestSignal() {
         
         const data = await response.json();
         
-        if (data.signal) {
-            displaySignal(data.signal);
-        } else {
-            displayNoSignal();
-        }
-        
-        // Update price and analysis
+        // Always update analysis first
         if (data.analysis) {
             updateAnalysis(data.analysis);
+        }
+        
+        // Check for signal
+        if (data.signal && data.signal.type) {
+            // New signal exists
+            displaySignal(data.signal);
+        } else {
+            // No signal - clear any old signal and show waiting state
+            signalDetails.classList.add('hidden');
+            signalDisplay.classList.remove('hidden');
+            displayNoSignal();
         }
         
     } catch (error) {
@@ -148,6 +151,9 @@ function displaySignal(signal) {
     
     // Show signal details
     signalDetails.classList.remove('hidden');
+    
+    // Add class for signal type
+    signalDetails.className = 'signal-details';
     if (signal.type === 'SHORT') {
         signalDetails.classList.add('short');
     }
@@ -184,9 +190,11 @@ function displaySignal(signal) {
         </div>
     `;
     
-    // Update signal status
+    // Update signal status in analysis
     document.getElementById('signal-value').textContent = signal.type;
     document.getElementById('signal-value').className = `analysis-value signal ${signal.type.toLowerCase()}`;
+    
+    console.log('✅ Signal displayed:', signal.type, '@', signal.entry);
 }
 
 // Display no signal state
@@ -194,16 +202,21 @@ function displayNoSignal() {
     const signalDisplay = document.getElementById('signal-display');
     const signalDetails = document.getElementById('signal-details');
     
-    signalDisplay.classList.remove('hidden');
+    // Ensure signal details are hidden
     signalDetails.classList.add('hidden');
     
+    // Show waiting message
+    signalDisplay.classList.remove('hidden');
     signalDisplay.innerHTML = `
         <div class="signal-icon">🔍</div>
         <div class="signal-message">No entry signal yet. Monitoring for setups...</div>
     `;
     
+    // Reset signal status
     document.getElementById('signal-value').textContent = 'WAITING';
     document.getElementById('signal-value').className = 'analysis-value signal';
+    
+    console.log('ℹ️ No active signal - monitoring...');
 }
 
 // Display offline mode
@@ -318,8 +331,14 @@ function switchTab(tabName) {
 // Toggle settings
 function toggleSettings() {
     const panel = document.getElementById('settings-panel');
-    panel.classList.toggle('hidden');
-    panel.classList.toggle('active');
+    
+    if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
+        panel.classList.add('active');
+    } else {
+        panel.classList.remove('active');
+        panel.classList.add('hidden');
+    }
 }
 
 // Filter assets
@@ -382,10 +401,15 @@ function setupMusic() {
     const toggle = document.getElementById('music-toggle');
     const audio = document.getElementById('background-music');
     
+    // Note: Music requires an actual audio file to work
+    // For now, we'll just show the toggle is working
     toggle.addEventListener('change', (e) => {
         if (e.target.checked) {
-            audio.play().catch(err => console.log('Music play failed:', err));
+            console.log('Music enabled (requires audio file)');
+            // Would play audio here if file exists
+            // audio.play().catch(err => console.log('Music play failed:', err));
         } else {
+            console.log('Music disabled');
             audio.pause();
         }
     });
