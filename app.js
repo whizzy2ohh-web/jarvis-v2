@@ -1,7 +1,7 @@
 // JARVIS AI Trading Terminal - Main JavaScript
 
 // Configuration
-const API_URL = 'https://your-backend-url.railway.app/api'; // Will be updated after deployment
+const API_URL = 'jarvis-v2-production-d9b1.up.railway.app'; // Will be updated after deployment
 const UPDATE_INTERVAL = 10000; // Update every 10 seconds
 
 // State
