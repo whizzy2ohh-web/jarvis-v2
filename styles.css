@@ -207,6 +207,30 @@ body {
     transform: translateX(100%);
 }
 
+.close-settings {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.close-settings:hover {
+    background: var(--bg-card);
+    color: var(--red);
+    transform: rotate(90deg);
+}
+
 .settings-content h2 {
     color: var(--cyan);
     margin-bottom: 10px;
