@@ -1,0 +1,10 @@
+# Railway Configuration File
+# This tells Railway how to deploy your backend
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "gunicorn server:app"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
